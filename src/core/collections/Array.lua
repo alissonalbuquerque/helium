@@ -9,6 +9,7 @@ local Array = {
     -- @only_read string
     __class = 'Array',
 
+    -- @only_read table
     __implements = {
         Iterable,
         Indexable

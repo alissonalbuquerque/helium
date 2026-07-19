@@ -11,17 +11,21 @@ local Object = setmetatable(
 
         MAGIC_METHODS = {'__construct'},
 
+        MAGIC_FIELDS  = {'__class', '__namespace', '__implements'},
+
         STRATEGY = {
             INCLUDE = 'include',
             EXCLUDE = 'exclude'
         },
 
         STRUCTS = {
-            SCALARS     = 'scalars',
-            TABLES      = 'tables',
-            MAGICS      = 'magics',
-            METHODS     = 'methods',
-            METAMETHODS = 'metamethods'
+            SCALARS      = 'scalars',
+            TABLES       = 'tables',
+            MAGICFIELDS  = 'magicfields',
+
+            METHODS      = 'methods',
+            METAMETHODS  = 'metamethods',
+            MAGICMETHODS = 'magicmethods'
         },
     },
     {
