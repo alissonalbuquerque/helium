@@ -1,47 +1,51 @@
 -- @class Object
 local Object = setmetatable(
     {
-        SCALAR_TYPES  = {'nil', 'boolean', 'number', 'string'},
+        DATA_TYPES       = {'nil', 'boolean', 'number', 'string', 'table'},
 
-        TABLE_TYPE    = {'table'},
+        CALLABLE_TYPES   = {'function'},
 
-        FUNCTION_TYPE = {'function'},
+        MAGIC_FIELDS     = {'__class', '__namespace', '__implements'},
 
-        META_METHODS  = {'__tostring'},
+        MAGIC_METHODS    = {'__construct'},
 
-        MAGIC_METHODS = {'__construct'},
+        META_METHODS     = {'__tostring'},
 
-        STRATEGY = {
-            INCLUDE = 'include',
-            EXCLUDE = 'exclude'
-        },
+        RESERVED_METHODS = {'__construct', '__tostring'},
 
         STRUCTS = {
-            SCALARS     = 'scalars',
-            TABLES      = 'tables',
-            MAGICS      = 'magics',
-            METHODS     = 'methods',
-            METAMETHODS = 'metamethods'
+            FIELDS       = 'fields',
+            MAGICFIELDS  = 'magicfields',
+            METHODS      = 'methods',
+            METAMETHODS  = 'metamethods',
+            MAGICMETHODS = 'magicmethods'
+        },
+
+        STRATEGY = {
+            INCLUDE_ALL  = 'include_all',
+            INCLUDE_ONLY = 'include_only',
+            EXCLUDE_ONLY = 'exclude_only'
         },
     },
     {
         __index = {
 
-            -- @param  table _template
-            -- @return table
-            -- @type   Object<T>
+            -- @param table _template
+            -- @return ClassLoader
             create = function(self, _template)
-
+                
                 local struct_keys = self:struct_keys(_template)
 
-                local class_load  = self:class_load(_template, struct_keys)
+                self:interface_verifier(_template)
+
+                local class_load = self:class_load(_template, struct_keys)
 
                 return class_load
             end,
 
-            -- @param  table _class_schema
-            -- @return table
-            -- @type   ClassLoader<T>
+            -- @param table _template
+            -- @param table _struct_keys
+            -- @return ClassLoader
             class_load = function(self, _template, _struct_keys)
 
                 local loader = {
@@ -61,46 +65,72 @@ local Object = setmetatable(
                 return loader
             end,
 
-            -- @param  table _template
-            -- @param  table _struct_keys
-            -- @return table
-            -- @type   Class<T>
+            -- @param table _template
+            -- @param table _struct_keys
+            -- @return ClassSchema
             class_schema = function(self, _template, _struct_keys)
 
-                local _structs = self:schema_struct(_template, _struct_keys)
+                local structs = self:schema_struct(_template, _struct_keys)
 
-                local _scalars     = _structs[self.STRUCTS.SCALARS]
-                local _tables      = _structs[self.STRUCTS.TABLES]
-                local _magics      = _structs[self.STRUCTS.MAGICS]
-                local _methods     = _structs[self.STRUCTS.METHODS]
-                local _metamethods = _structs[self.STRUCTS.METAMETHODS]
+                local fields       = structs[self.STRUCTS.FIELDS]
+                local magicfields  = structs[self.STRUCTS.MAGICFIELDS]
+                local methods      = structs[self.STRUCTS.METHODS ]
+                local metamethods  = structs[self.STRUCTS.METAMETHODS]
+                local magicmethods = structs[self.STRUCTS.MAGICMETHODS]
 
-                local _table_root = self:merge_structs(_scalars, _tables)
-                local _meta_index = self:merge_structs(_magics, _methods)
+                local _table = self:merge_structs(fields, magicfields)
+                local _metatable = self:merge_structs(methods, magicmethods)
 
-                local _schema = self:build_schema(_table_root, _meta_index, _metamethods)
+                local schema = self:build_schema(_table, _metatable, metamethods)
 
-                return _schema
+                return schema
             end,
 
-            -- @param  table _table_root
-            -- @param  table _meta_index
-            -- @param  table _metamethods
-            -- @return table
-            -- @type   Class<T>
-            build_schema = function(self, _table_root, _meta_index, _metamethods)
+            -- @param table _table
+            -- @param table _metatable
+            -- @param table _metamethods
+            -- @return ClassSchema
+            build_schema = function(self, _table, _metatable, _metamethods)
 
-                local _metatable = {
-                    __index = _meta_index
+                local metatable = {
+                    __index = _metatable
                 }
 
                 for _key, _value in pairs(_metamethods) do
-                    _metatable[_key] = _value
+                    metatable[_key] = _value
                 end
                 
-                local schema = setmetatable(_table_root, _metatable)
+                local schema = setmetatable(_table, metatable)
 
                 return schema
+            end,
+
+            -- @param table _template
+            -- @return nil
+            -- @throws error If the class does not implement all methods declared by its interfaces.
+            interface_verifier = function(self, _template)
+                
+                local interfaces = _template.__implements or {}
+
+                local callable_keys = self:filter_keys(_template, self.CALLABLE_TYPES, self.STRATEGY.INCLUDE_ALL, nil)
+
+                local callable_set  = {}
+
+                for _, key in ipairs(callable_keys) do
+                    callable_set[key] = true
+                end
+
+                for _, interface in ipairs(interfaces) do
+
+                    for _, method in ipairs(interface.__methods) do
+
+                        if not callable_set[method] then
+                            error(("Class '%s' must implement method '%s' declared in interface '%s'."):format(_template.__class, method, interface.__interface))
+                        end
+
+                    end
+
+                end
             end,
 
             -- @param  table _template
@@ -109,11 +139,11 @@ local Object = setmetatable(
             schema_struct = function(self, _template, _struct_keys)
                 local schema = {}
 
-                    schema[self.STRUCTS.SCALARS]     = self:pick_struct(_template, _struct_keys[self.STRUCTS.SCALARS])
-                    schema[self.STRUCTS.TABLES]      = self:pick_struct(_template, _struct_keys[self.STRUCTS.TABLES])
-                    schema[self.STRUCTS.MAGICS]      = self:pick_struct(_template, _struct_keys[self.STRUCTS.MAGICS])
-                    schema[self.STRUCTS.METHODS]     = self:pick_struct(_template, _struct_keys[self.STRUCTS.METHODS])
-                    schema[self.STRUCTS.METAMETHODS] = self:pick_struct(_template, _struct_keys[self.STRUCTS.METAMETHODS])
+                    schema[self.STRUCTS.FIELDS]       = self:pick_struct(_template, _struct_keys[self.STRUCTS.FIELDS])
+                    schema[self.STRUCTS.MAGICFIELDS]  = self:pick_struct(_template, _struct_keys[self.STRUCTS.MAGICFIELDS])
+                    schema[self.STRUCTS.METHODS]      = self:pick_struct(_template, _struct_keys[self.STRUCTS.METHODS ])
+                    schema[self.STRUCTS.METAMETHODS]  = self:pick_struct(_template, _struct_keys[self.STRUCTS.METAMETHODS])
+                    schema[self.STRUCTS.MAGICMETHODS] = self:pick_struct(_template, _struct_keys[self.STRUCTS.MAGICMETHODS])
 
                 return schema
             end,
@@ -151,125 +181,83 @@ local Object = setmetatable(
             -- @return table
             struct_keys = function(self, _template)
                 local keys = {}
-                
-                    keys[self.STRUCTS.SCALARS]     = self:scalar_keys(_template)
-                    keys[self.STRUCTS.TABLES]      = self:table_keys(_template)
-                    keys[self.STRUCTS.MAGICS]      = self:magic_keys(_template)
-                    keys[self.STRUCTS.METHODS]     = self:method_keys(_template)
-                    keys[self.STRUCTS.METAMETHODS] = self:metamethod_keys(_template)
+
+                    keys[self.STRUCTS.FIELDS]       = self:filter_keys(_template, self.DATA_TYPES, self.STRATEGY.EXCLUDE_ONLY, self.MAGIC_FIELDS)
+                    keys[self.STRUCTS.MAGICFIELDS]  = self:filter_keys(_template, self.DATA_TYPES, self.STRATEGY.INCLUDE_ONLY, self.MAGIC_FIELDS)
+                    keys[self.STRUCTS.METHODS]      = self:filter_keys(_template, self.CALLABLE_TYPES, self.STRATEGY.EXCLUDE_ONLY, self.RESERVED_METHODS)
+                    keys[self.STRUCTS.METAMETHODS]  = self:filter_keys(_template, self.CALLABLE_TYPES, self.STRATEGY.INCLUDE_ONLY, self.META_METHODS)
+                    keys[self.STRUCTS.MAGICMETHODS] = self:filter_keys(_template, self.CALLABLE_TYPES, self.STRATEGY.INCLUDE_ONLY, self.MAGIC_METHODS)
 
                 return keys
             end,
 
-            -- @param  table _template
+            -- @param  table  _template
+            -- @param  table  _types
+            -- @param  string _strategy
+            -- @param  table|nil _signatures
             -- @return table
-            scalar_keys = function(self, _template)
-                return self:filter_keys(_template, self.SCALAR_TYPES)
-            end,
-
-            -- @param  table _template
-            -- @return table
-            table_keys = function(self, _template)
-                return self:filter_keys(_template, self.TABLE_TYPE)
-            end,
-
-            -- @param  table _template
-            -- @return table
-            magic_keys = function(self, _template)
-                return self:filter_methods(self:filter_keys(_template, self.FUNCTION_TYPE), {self.MAGIC_METHODS}, self.STRATEGY.INCLUDE)
-            end,
-
-            -- @param  table _template
-            -- @return table
-            metamethod_keys = function(self, _template)
-                return self:filter_methods(self:filter_keys(_template, self.FUNCTION_TYPE), {self.META_METHODS}, self.STRATEGY.INCLUDE)
-            end,
-
-            -- @param  table _template
-            -- @return table
-            method_keys = function(self, _template)
-                return self:filter_methods(self:filter_keys(_template, self.FUNCTION_TYPE), {self.MAGIC_METHODS, self.META_METHODS}, self.STRATEGY.EXCLUDE)
-            end,
-
-            -- @param  table _template
-            -- @param  table _types
-            -- @return table
-            filter_keys = function(self, _template, _types)
-                local keys = {}
+            filter_keys = function(self, _template, _types, _strategy, _signatures)
+                local type_keys     = {}
+                local strategy_keys = {}
 
                 for _, _type in ipairs(_types) do
-
                     for _key, _value in pairs(_template) do
-                        if type(_value) == _type then table.insert(keys, _key) end
-                    end
-                    
-                end
-                
-                return keys
-            end,
-
-            -- @param  table   _keys
-            -- @param  table[] _methods
-            -- @param  string  _strategy
-            -- @return table
-            filter_methods = function(self, _keys, _methods, _strategy)
-                local keys = {}
-
-                local methods = {}
-
-                for _, _method in ipairs(_methods) do
-                    for _, _value in ipairs(_method) do
-                        table.insert(methods, _value)
+                        if type(_value) == _type then table.insert(type_keys, _key) end
                     end
                 end
 
-                if _strategy == self.STRATEGY.INCLUDE then
+                if _strategy == self.STRATEGY.INCLUDE_ALL then
+                    return type_keys
+                end
 
-                    for _, _key in ipairs(_keys) do
-                        for _, _method in ipairs(methods) do
-                            if _key == _method then
-                                table.insert(keys, _key)
-                            end
+                if _strategy == self.STRATEGY.INCLUDE_ONLY then
+
+                    for _, _key in ipairs(type_keys) do
+                        for _, _signature in ipairs(_signatures) do
+                            if _key == _signature then table.insert(strategy_keys, _key) end
                         end
                     end
 
                 end
 
-                if _strategy == self.STRATEGY.EXCLUDE then
+                if _strategy == self.STRATEGY.EXCLUDE_ONLY then
 
-                    for _, _key in ipairs(_keys) do
-
+                    for _, _key in ipairs(type_keys) do
                         local _is_excluded = false
 
-                        for _, _method in ipairs(methods) do
-                            if _key == _method then
+                        for _, _signature in ipairs(_signatures) do
+                            if _key == _signature then
                                 _is_excluded = true
                                 break
                             end
                         end
-
+                    
                         if _is_excluded == false then
-                            table.insert(keys, _key)
+                            table.insert(strategy_keys, _key)
                         end
                     end
 
                 end
 
-                return keys
+                return strategy_keys
             end,
 
-            -- @param  table _table
+            -- @param  table _template
             -- @return string
-            tostring = function(self, _table)
-                local _metatable = getmetatable(_table)
+            tostring = function(self, _template)
+                local _metatable = getmetatable(_template)
 
-                setmetatable(_table, nil)
+                setmetatable(_template, nil)
 
-                local output = string.format('%s --> %s --> %s', _table.__namespace, _table.__class, tostring(_table):match('0x%x+'))
+                local output = ("%s.%s (%s)"):format(
+                    _template.__namespace,
+                    _template.__class,
+                    tostring(_template):match("0x%x+")
+                )
 
-                setmetatable(_table, _metatable)
-                
-                return output                
+                setmetatable(_template, _metatable)
+
+                return output
             end
         }
     }

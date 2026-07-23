@@ -4,20 +4,20 @@ local __config__ = require('src.core.collections.interfaces.__config__')
 local Indexable = {
 
     -- @only_read string
-    interface = 'Indexable',
+    __interface = 'Indexable',
 
     -- @only_read string
-    namespace = __config__.__namespace,
-
-    -- @only_read integer
-    INCREMENT = 1,
+    __namespace = __config__.__namespace,
 
     -- @only_read string[]
-    methods = {
+    __methods = {
         'set',
         'get',
         'shift_index'
     },
+
+    -- @only_read integer
+    INCREMENT = 1,
 
     -- @only_read function[]
     default = {
