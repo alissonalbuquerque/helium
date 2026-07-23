@@ -50,10 +50,17 @@ local Array = {
     -- @return integer
     shift_index = function(self, index)
         return Indexable.default.shift_index(index, Indexable.INCREMENT)
-    end
+    end,
 
-    -- iterator
-    -- tostring
+    -- @return nil
+    iterator = function(self)
+        return 'check'
+    end,
+
+    -- @return string
+    __tostring = function(self)
+        return __config__.__object:tostring(self)
+    end
 }
 
 return __config__.__object:create(Array)
