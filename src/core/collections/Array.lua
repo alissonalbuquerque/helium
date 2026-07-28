@@ -1,7 +1,6 @@
 local __config__ = require('src.core.collections.__config__')
-local Iterable   = require('src.core.collections.interfaces.Iterable')
 local Indexable  = require('src.core.collections.interfaces.Indexable')
-local types      = require('src.core.base.types')
+local Types      = require('src.core.base.Types')
 
 -- @class Array
 local Array = {
@@ -11,7 +10,6 @@ local Array = {
 
     -- @only_read table
     __implements = {
-        Iterable,
         Indexable
     },
 
@@ -24,14 +22,17 @@ local Array = {
         self.len   = len
         self.items = {}
 
-        if type(input) == types.TABLE then
-            for i = 1, len do self.items[i] = input[i] end
-        elseif type(input) == types.FUNCTION then
-            for i = 1, len do self.items[i] = input() end
+        if Types:equals(type(input), Types.TABLE) then
+            for i = 1, len do 
+                self.items[i] = input[i] 
+            end
+        elseif Types:equals(type(input), Types.FUNCTION) then
+            for i = 1, len do 
+                self.items[i] = input() 
+            end
         else
             error('Invalid input type for Array constructor. Expected table or function.')
         end
-
     end,
 
     -- @param integer index
@@ -48,13 +49,16 @@ local Array = {
     end,
 
     -- @return integer
-    shift_index = function(self, index)
-        return Indexable.default.shift_index(index, Indexable.INCREMENT)
+    count = function(self)
+        return self.len
     end,
 
-    -- @return nil
-    iterator = function(self)
-        return 'check'
+    -- @param integer index
+    -- @return integer
+    -- @throws error If the index is out of bounds in 0 to length-1
+    shift_index = function(self, index)
+        Indexable.default.check_index(index, 0, self.len-1)
+        return Indexable.default.shift_index(index, Indexable.INCREMENT)
     end,
 
     -- @return string
