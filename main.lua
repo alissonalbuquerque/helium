@@ -13,4 +13,12 @@ local Array = __package__.from(__collections__, {'Array'})
 local arr1  = Array.new(5, {1, 2, 3, 4, 5})
 -- local arr2  = Array.new(5, function() return String.new() end)
 
-print(arr1:get('1'))
+print(arr1)
+
+-- print(arr1:get(1))
+
+-- construct(index, items)
+-- set(index, item):void
+-- get(index):item
+-- count():integer
+
