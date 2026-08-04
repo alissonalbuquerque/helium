@@ -1,6 +1,7 @@
 local __config__ = require('src.core.collections.__config__')
 local Indexable  = require('src.core.collections.interfaces.Indexable')
 local Types      = require('src.core.base.Types')
+local ArrayInvalidArgumentException = require('src.core.collections.exceptions.ArrayInvalidArgumentException')
 
 -- @class Array
 local Array = {
@@ -31,7 +32,7 @@ local Array = {
                 self.items[i] = input() 
             end
         else
-            error('Invalid input type for Array constructor. Expected table or function.')
+            ArrayInvalidArgumentException.new():throw()
         end
     end,
 

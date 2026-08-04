@@ -15,7 +15,7 @@ local ArrayInvalidArgumentException = {
     -- @param string message
     -- @param integer level
     __construct = function(self)
-        self.name    = self.__class,
+        self.name    = self.__class
         self.level   = 0
         self.message = "Invalid input type for Array constructor. Expected table or function."
     end,
@@ -26,4 +26,4 @@ local ArrayInvalidArgumentException = {
     end
 }
 
-return __config__.__object:create(ArrayInvalidArgumentException)
+return __config__.__object:create(ArrayInvalidArgumentException, Exception.super)

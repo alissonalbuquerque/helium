@@ -30,17 +30,21 @@ local Object = setmetatable(
     {
         __index = {
 
-            -- @param table _template
-            -- @return ClassLoader
-            create = function(self, _template)
-                
-                local struct_keys = self:struct_keys(_template)
+            -- @param table     _template
+            -- @param table|nil _super
+            -- @return AbstractClassLoader|ClassLoader
+            create = function(self, _template, _super)
+                local template = self:merge_template(_template, _super)
 
-                self:interface_verifier(_template)
+                if self:is_abstract_class(template) then
+                    return self:abstract_load(template)
+                end
 
-                local class_load = self:class_load(_template, struct_keys)
+                local struct_keys = self:struct_keys(template)
 
-                return class_load
+                self:interface_verifier(template)
+
+                return self:class_load(template, struct_keys)
             end,
 
             -- @param table _template
@@ -58,11 +62,79 @@ local Object = setmetatable(
                         schema:__construct(table.unpack(args))
 
                         return schema
-                    end
+                    end,
 
+                    super = _template
                 }
 
                 return loader
+            end,
+
+            -- @param table _template
+            -- @return AbstractClassLoader
+            abstract_load = function(self, _template)
+
+                local loader = {
+
+                    new = function(...)
+                        error(("Cannot instantiate abstract class '%s'."):format(_template.__class), 1)
+                    end,
+
+                    super = _template
+                }
+
+                return loader
+            end,
+
+            -- @param table     _templatesub
+            -- @param table|nil _templatesuper
+            -- @return table
+            merge_template = function(self, _templatesub, _templatesuper)
+
+                local template = {}
+
+                local sub = _templatesub
+                local super = _templatesuper or {}
+                local implements = self:merge_interfaces(sub.__implements, super.__implements)
+
+                for _key, _value in pairs(super) do
+                    template[_key] = _value
+                end
+
+                for _key, _value in pairs(sub) do
+                    template[_key] = _value
+                end
+
+                template['__implements'] = implements
+
+                return template
+            end,
+
+            -- @param table|nil _interfaces_sub
+            -- @param table|nil _interfaces_super
+            -- @return table
+            merge_interfaces = function(self, _interfaces_sub, _interfaces_super)
+
+                local interfaces = {}
+
+                local sub = _interfaces_sub or {}
+                local super = _interfaces_super or {}
+
+                local abstract_class = 'src.core.base.interfaces.AbstractClass'
+
+                for _, _interface in ipairs(super) do
+                    local interface = ("%s.%s"):format(_interface.__namespace, _interface.__interface)
+
+                    if interface ~= abstract_class then
+                        table.insert(interfaces, _interface)
+                    end
+                end
+
+                for _, _interface in ipairs(sub) do
+                    table.insert(interfaces, _interface)
+                end
+
+                return interfaces
             end,
 
             -- @param table _template
@@ -131,6 +203,29 @@ local Object = setmetatable(
                     end
 
                 end
+            end,
+
+            -- @param table _template
+            -- @return boolean
+            is_abstract_class = function(self, _template)
+
+                local is_abstract = false
+
+                local interfaces  = _template.__implements or {}
+                local abstract_class = 'src.core.base.interfaces.AbstractClass'
+
+                for _, _interface in ipairs(interfaces) do
+
+                    local interface = ("%s.%s"):format(_interface.__namespace, _interface.__interface)
+
+                    if interface == abstract_class then
+                        is_abstract = true
+                        break
+                    end
+                    
+                end
+
+                return is_abstract
             end,
 
             -- @param  table _template

@@ -21,7 +21,7 @@ local Exception = {
     -- @param string message
     -- @param integer level
     __construct = function(self)
-        self.name    = self.__class,
+        self.name    = self.__class
         self.level   = 0
         self.message = "Abstract Exception"
     end,

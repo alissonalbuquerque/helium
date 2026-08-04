@@ -11,8 +11,7 @@ local Throwable = {
 
     -- @only_read string[]
     __methods = {
-        'throw',
-        'fmt_message'
+        'throw'
     }
 }
 
