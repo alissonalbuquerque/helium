@@ -1,5 +1,5 @@
--- @imports
-local __config__  = require('src.core.wrapper.__config__')
+-- @module
+local __config__ = require('src.core.__config__')
 
 -- @class Package
 local package = __config__.__package.new(__config__.__namespace, __config__.__modules)

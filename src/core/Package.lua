@@ -1,16 +1,13 @@
-local package = {
+-- @table Package
+local Package = {
 
     -- @field _namespace string
     -- @field _modules   string[]
-    -- @return table<Package>
+    -- @return Object|metatable|Package
     new = function(_namespace, _modules)
 
-        -- @class table
-        -- @field namespace string
-        -- @field modules   string[]
         local _table = {namespace = _namespace, modules = _modules}
 
-        -- @class table
         local _metatable = {
             __index = {
 
@@ -26,19 +23,17 @@ local package = {
 
                 -- @return string[]
                 get_paths = function(self)
-                    -- @class table
                     local paths = {}
 
-                    for index, value in ipairs(self.modules) do
-                        paths[value] = string.format('%s.%s', self.namespace, value)
+                    for _, _module in ipairs(self.modules) do
+                        paths[_module] = ("%s.%s"):format(self.namespace, _module)
                     end
                     
                     return paths
                 end,
 
-                -- @return table<Module>
+                -- @return module[]
                 load_modules = function(self)
-                    -- @class table
                     local package = {}
 
                     for key, path in pairs(self:get_paths()) do
@@ -53,16 +48,14 @@ local package = {
         return setmetatable(_table, _metatable)
     end,
 
-    -- @field _modules table
-    -- @field _import  string[]
-    -- @return args|...
-    -- @type   Module
-    from = function(_modules, _import)
-        -- @class table
+    -- @field _modules module[]
+    -- @field _imports string[]
+    -- @return args|... -> module[]
+    from = function(_modules, _imports)
         local modules = {}
 
-        for key, value in pairs(_import) do
-            table.insert(modules, _modules[value])
+        for _, _value in pairs(_imports) do
+            table.insert(modules, _modules[_value])
         end
 
         return table.unpack(modules)
@@ -70,4 +63,4 @@ local package = {
     
 }
 
-return package
+return Package

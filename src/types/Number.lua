@@ -1,5 +1,9 @@
-local __config__ = require('src.core.wrapper.__config__')
+local __lang__ = require('src.lang.__init__')
+local __config__ = require('src.types.__config__')
 
+local Object = __config__.__package.from(__lang__, {'Object'})
+
+-- @class
 local Number = {
 
     -- @only_read string
@@ -42,16 +46,10 @@ local Number = {
     -- @return boolean
     is_integer = function(self)
         return self:get_type() == self.TYPE_INTEGER
-    end,
-
-    -- @override
-    -- @return string
-    __tostring = function(self)
-        return __config__.__object:tostring(self)
     end
 }
 
-return __config__.__object:create(Number)
+return __config__.__class:create(Number, Object.template)
 
 -- is_float() : boolean
 -- is_integer() : boolean

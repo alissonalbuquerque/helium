@@ -1,5 +1,9 @@
-local __config__ = require('src.core.wrapper.__config__')
+local __lang__ = require('src.lang.__init__')
+local __config__ = require('src.types.__config__')
 
+local Object = __config__.__package.from(__lang__, {'Object'})
+
+-- @class
 local Boolean = {
 
     -- @only_read string
@@ -21,13 +25,7 @@ local Boolean = {
     -- @return boolean
     get_value = function(self)
         return self.value
-    end,
-
-    -- @override
-    -- @return string
-    __tostring = function(self)
-        return __config__.__object:tostring(self)
     end
 }
 
-return __config__.__object:create(Boolean)
+return __config__.__class:create(Boolean, Object.template)

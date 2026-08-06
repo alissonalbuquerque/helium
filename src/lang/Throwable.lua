@@ -1,6 +1,6 @@
-local __config__ = require('src.core.base.interfaces.__config__')
+local __config__ = require('src.lang.__config__')
 
--- @interface Throwable
+-- @interface
 local Throwable = {
 
     -- @only_read string

@@ -1,6 +1,6 @@
-local __config__ = require('src.core.base.interfaces.__config__')
+local __config__ = require('src.lang.__config__')
 
--- @interface AbstractClass
+-- @interface
 local AbstractClass = {
 
     -- @only_read string
@@ -11,7 +11,7 @@ local AbstractClass = {
 
     -- @only_read string[]
     __methods = {
-        
+           
     }
 }
 

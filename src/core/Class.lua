@@ -1,5 +1,5 @@
--- @class Object
-local Object = setmetatable(
+-- @class Class
+local Class = setmetatable(
     {
         DATA_TYPES       = {'nil', 'boolean', 'number', 'string', 'table'},
 
@@ -26,6 +26,8 @@ local Object = setmetatable(
             INCLUDE_ONLY = 'include_only',
             EXCLUDE_ONLY = 'exclude_only'
         },
+
+        ABSTRACT_CLASS = 'src.core.base.interfaces.AbstractClass'
     },
     {
         __index = {
@@ -64,7 +66,7 @@ local Object = setmetatable(
                         return schema
                     end,
 
-                    super = _template
+                    template = _template
                 }
 
                 return loader
@@ -80,7 +82,7 @@ local Object = setmetatable(
                         error(("Cannot instantiate abstract class '%s'."):format(_template.__class), 1)
                     end,
 
-                    super = _template
+                    template = _template
                 }
 
                 return loader
@@ -120,12 +122,10 @@ local Object = setmetatable(
                 local sub = _interfaces_sub or {}
                 local super = _interfaces_super or {}
 
-                local abstract_class = 'src.core.base.interfaces.AbstractClass'
-
                 for _, _interface in ipairs(super) do
                     local interface = ("%s.%s"):format(_interface.__namespace, _interface.__interface)
 
-                    if interface ~= abstract_class then
+                    if interface ~= self.ABSTRACT_CLASS then
                         table.insert(interfaces, _interface)
                     end
                 end
@@ -212,13 +212,12 @@ local Object = setmetatable(
                 local is_abstract = false
 
                 local interfaces  = _template.__implements or {}
-                local abstract_class = 'src.core.base.interfaces.AbstractClass'
 
                 for _, _interface in ipairs(interfaces) do
 
                     local interface = ("%s.%s"):format(_interface.__namespace, _interface.__interface)
 
-                    if interface == abstract_class then
+                    if interface == self.ABSTRACT_CLASS then
                         is_abstract = true
                         break
                     end
@@ -358,4 +357,4 @@ local Object = setmetatable(
     }
 )
 
-return Object
+return Class

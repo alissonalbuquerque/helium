@@ -1,4 +1,4 @@
--- @class Types
+-- @static
 local Types = setmetatable(
     {
         NIL      = 'nil',

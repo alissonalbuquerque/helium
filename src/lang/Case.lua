@@ -1,6 +1,9 @@
-local __config__ = require('src.core.base.__config__')
+local __lang__ = require('src.lang.__init__')
+local __config__ = require('src.lang.__config__')
 
--- @class Case
+local Object = __config__.__package.from(__lang__, {'Object'})
+
+-- @class
 local Case = {
 
     -- @only_read string
@@ -24,13 +27,7 @@ local Case = {
     -- @return string|number|boolean
     get_value = function(self)
         return self.value
-    end,
-
-    -- @override
-    -- @return string
-    __tostring = function(self)
-        return __config__.__object:tostring(self)
     end
 }
 
-return __config__.__object:create(Case)
+return __config__.__class:create(Case, Object.template)

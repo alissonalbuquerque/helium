@@ -1,8 +1,9 @@
-local __config__ = require('src.core.base.__config__')
-local Throwable  = require('src.core.base.interfaces.Throwable')
-local AbstractClass = require('src.core.base.interfaces.AbstractClass')
+local __lang__ = require('src.lang.__init__')
+local __config__ = require('src.lang.__config__')
 
--- @Abstract Exception
+local AbstractClass, Object, Throwable = __config__.__package.from(__lang__, {'AbstractClass', 'Object', 'Throwable'})
+
+-- @abstract
 local Exception = {
 
     -- @only_read string
@@ -23,7 +24,7 @@ local Exception = {
     __construct = function(self)
         self.name    = self.__class
         self.level   = 0
-        self.message = "Abstract Exception"
+        self.message = "Message Exception"
     end,
 
     -- @return string
@@ -39,13 +40,7 @@ local Exception = {
     -- @return integer
     get_level = function(self)
         return self.level
-    end,
-
-    -- @override
-    -- @return string
-    __tostring = function(self)
-        return __config__.__object:tostring(self)
     end
 }
 
-return __config__.__object:create(Exception)
+return __config__.__class:create(Exception, Object.template)
