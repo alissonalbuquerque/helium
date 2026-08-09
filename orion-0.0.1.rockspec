@@ -3,13 +3,13 @@ package = "helium"
 version = "0.0.1-1"
 
 source = {
-  url = "https://github.com/alissonalbuquerque/helium.git"
+  url = "https://github.com/alissonalbuquerque/orion.git"
 }
 
 description = {
   summary  = "A framework POO writed in lua vanilla",
   detailed = "Implementation tables like object orientation paradigm, only lua language",
-  homepage = "https://github.com/alissonalbuquerque",
+  homepage = "https://github.com/alissonalbuquerque/orion",
   license  = "MIT"
 }
 
