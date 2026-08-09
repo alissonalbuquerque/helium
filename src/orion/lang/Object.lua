@@ -1,4 +1,4 @@
-local __config__ = require('src.lang.__config__')
+local __config__ = require('orion.lang.config')
 
 -- @class
 local Object = {

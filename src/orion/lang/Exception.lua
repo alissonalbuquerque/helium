@@ -1,7 +1,7 @@
-local __lang__ = require('src.lang.__init__')
-local __config__ = require('src.lang.__config__')
+local __lang__ = require('orion.lang.init')
+local __config__ = require('orion.lang.config')
 
-local AbstractClass, Object, Throwable = __config__.__package.from(__lang__, {'AbstractClass', 'Object', 'Throwable'})
+local AbstractClass, Throwable = __config__.__package.from(__lang__, {'AbstractClass', 'Throwable'})
 
 -- @abstract
 local Exception = {
@@ -43,4 +43,4 @@ local Exception = {
     end
 }
 
-return __config__.__class:create(Exception, Object.template)
+return __config__.__class:create(Exception, __config__.__object.template)

@@ -1,13 +1,10 @@
-local __lang__ = require('src.lang.__init__')
-local __config__ = require('src.types.__config__')
-
-local Object = __config__.__package.from(__lang__, {'Object'})
+local __config__ = require('orion.types.config')
 
 -- @class
-local Float = {
+local Integer = {
 
     -- @only_read string
-    __class = 'Float',
+    __class = 'Integer',
 
     -- @only_read string
     __namespace = __config__.__namespace,
@@ -18,7 +15,7 @@ local Float = {
     end,
 
     -- @return boolean
-    get_float = function(self)
+    get_integer = function(self)
         return self.value
     end,
 
@@ -28,4 +25,4 @@ local Float = {
     end
 }
 
-return __config__.__class:create(Float, Object.template)
+return __config__.__class:create(Integer, __config__.__object.template)

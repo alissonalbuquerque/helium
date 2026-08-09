@@ -1,7 +1,4 @@
-local __lang__ = require('src.lang.__init__')
-local __config__ = require('src.types.__config__')
-
-local Object = __config__.__package.from(__lang__, {'Object'})
+local __config__ = require('orion.types.config')
 
 -- @class
 local Number = {
@@ -49,7 +46,7 @@ local Number = {
     end
 }
 
-return __config__.__class:create(Number, Object.template)
+return __config__.__class:create(Number, __config__.__object.template)
 
 -- is_float() : boolean
 -- is_integer() : boolean

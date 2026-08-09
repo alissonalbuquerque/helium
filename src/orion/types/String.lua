@@ -1,7 +1,4 @@
-local __lang__ = require('src.lang.__init__')
-local __config__ = require('src.types.__config__')
-
-local Object = __config__.__package.from(__lang__, {'Object'})
+local __config__ = require('orion.types.config')
 
 -- @class
 local String = {
@@ -48,4 +45,4 @@ local String = {
     -- end
 }
 
-return __config__.__class:create(String, Object.template)
+return __config__.__class:create(String, __config__.__object.template)

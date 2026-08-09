@@ -1,5 +1,5 @@
 -- @module
-local __config__ = require('src.core.__config__')
+local __config__ = require('orion.core.config')
 
 -- @class Package
 local package = __config__.__package.new(__config__.__namespace, __config__.__modules)

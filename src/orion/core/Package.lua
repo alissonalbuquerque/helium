@@ -60,7 +60,7 @@ local Package = {
 
         return table.unpack(modules)
     end
-    
+
 }
 
 return Package
