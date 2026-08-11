@@ -25,7 +25,26 @@ local Types = setmetatable(
             -- @return boolean
             not_equals = function(self, a, b)
                 return a ~= b
+            end,
+
+            -- @param any value
+            -- @return string
+            type = function(self, value)
+                return type(value)
+            end,
+
+            -- @param Object object
+            -- @return string
+            class = function(self, object)
+                return ("%s.%s"):format(object.__namespace, object.__class)
+            end,
+
+            -- @param Interface interface
+            -- @return string
+            interface = function(self, interface)
+                return ("%s.%s"):format(interface.__namespace, interface.__interface)
             end
+            
         }
     }
 )
