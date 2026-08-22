@@ -1,3 +1,1 @@
-local Unit = require('orion.lang.Unit')
-
-return Unit.new()
+return (require('orion.lang.Unit')).new()

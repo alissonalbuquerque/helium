@@ -1,7 +1,7 @@
-local __lang__ = require('orion.lang.init')
 local __config__ = require('orion.lang.config')
 
-local Case = __config__.__package.from(__lang__, {'Case'})
+local Case = require('orion.lang.Case')
+local Object = require('orion.lang.Object')
 
 -- @class
 local Enum = {
@@ -29,4 +29,4 @@ local Enum = {
     end
 }
 
-return __config__.__class:create(Enum, __config__.__object.template)
+return __config__.__class:create(Enum, Object.template)

@@ -12,7 +12,7 @@ local Conversion = {
     __class = 'Conversion',
 
     -- @only_read string
-    __namespace = __config__.__namespace
+    __namespace = __config__.__namespace,
 
     -- @param String object
     -- @return Boolean
@@ -36,7 +36,7 @@ local Conversion = {
     -- @return Number
     toNumber = function(self, object)
         return Number.new(object:get_value())
-    end,
+    end
 
     -- @param Boolean|Integer|Float|Number object
     -- @return String

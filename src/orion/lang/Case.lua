@@ -1,5 +1,7 @@
 local __config__ = require('orion.lang.config')
 
+local Object = require('orion.lang.Object')
+
 -- @class
 local Case = {
 
@@ -27,4 +29,4 @@ local Case = {
     end
 }
 
-return __config__.__class:create(Case, __config__.__object.template)
+return __config__.__class:create(Case, Object.template)
