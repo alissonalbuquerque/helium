@@ -3,7 +3,7 @@ local Boolean    = require('orion.types.Boolean')
 local Float      = require('orion.types.Float')
 local Integer    = require('orion.types.Integer')
 local Number     = require('orion.types.Number')
-local String     = require('orion.types.String')
+-- local String     = require('orion.types.String')
 
 -- @class
 local Conversion = {
@@ -40,9 +40,9 @@ local Conversion = {
 
     -- @param Boolean|Integer|Float|Number object
     -- @return String
-    toString = function(self, object)
-        return String.new(tostring(object:get_value()))
-    end
+    -- toString = function(self, object)
+    --     return String.new(tostring(object:get_value()))
+    -- end
 }
 
 return __config__.__class:create(Conversion, __config__.__object.template)
