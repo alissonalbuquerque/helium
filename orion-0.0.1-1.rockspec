@@ -1,6 +1,6 @@
 package = "orion"
 
-version = "0.0.1"
+version = "0.0.1-1"
 
 source = {
   url = "https://github.com/alissonalbuquerque/orion.git"
