@@ -1,9 +1,9 @@
 local __config__ = require('orion.types.config')
+local Types      = require('orion.lang.Types')
+local Values     = require('orion.lang.Values')
+local Unit       = require('orion.singleton.Unit')
 local TypeError  = require('orion.exceptions.TypeError')
-local Types  = require('orion.lang.Types')
-local Float  = require('orion.types.Float')
-local Number = require('orion.types.Number')
-local String = require('orion.types.String')
+local ValueError = require('orion.exceptions.ValueError')
 
 -- @class
 local Integer = {
@@ -14,14 +14,31 @@ local Integer = {
     -- @only_read string
     __namespace = __config__.__namespace,
 
-    -- @param integer|string value
+    -- @param string|float|integer value
     __construct = function(self, value)
+        self:__validate(value)
+
+        local castvalue = Values:to_number(value)
+
+        self.value = castvalue >= 0 and math.floor(value) or math.ceil(value)
+    end,
+
+    -- @param string|float|integer value
+    -- @return Unit
+    __validate = function(self, value)
+        local received = Types:type(value)
+        local casttype = Types:type(Values:to_number(value))
+        local expected = {str = Types.STRING, num = Types.NUMBER}
+
+        if Types:not_equals(expected.str, received) and Types:not_equals(expected.num, received) then
+            TypeError.new(("%s or %s"):format(expected.str, expected.num), received):throw()
+        end
+
+        if Types:not_equals(expected.num, casttype) then
+            ValueError.new(value, "Expected 'string' or 'number' assing to 'number'"):throw()
+        end
         
-        -- receber value como integer ou uma string que represente um integer, fora esses casos disparar erros
-        -- Exception -> ValueError - integer ou string que represente um integer
-        -- Exception -> TypeError  - para verificação de tipos de entrada diferentes de integer|string
-        
-        self.value = value
+        return Unit
     end,
 
     -- @param Object other
@@ -36,23 +53,18 @@ local Integer = {
     end,
 
     -- @return integer
-    get_integer = function(self)
+    get_value = function(self)
         return self.value
     end,
 
-    -- @return Float
+    -- @return float
     as_float = function(self)
-        return Float.new(self.value)
+        return self.value + 0.0
     end,
 
-    -- @return Number
-    as_number = function(self)
-        return Number.new(self.value)
-    end,
-
-    -- @return String
+    -- @return string
     as_string = function(self)
-        return String.new(self.value)
+        return tostring(self.value)
     end,
 
     -- @override

@@ -1,6 +1,9 @@
 local __config__ = require('orion.types.config')
 local Types      = require('orion.lang.Types')
+local Values     = require('orion.lang.Values')
+local Unit       = require('orion.singleton.Unit')
 local TypeError  = require('orion.exceptions.TypeError')
+local ValueError = require('orion.exceptions.ValueError')
 
 -- @class
 local Boolean = {
@@ -11,13 +14,32 @@ local Boolean = {
     -- @only_read string
     __namespace = __config__.__namespace,
 
-    -- @param boolean value
+    -- @param string|boolean value
     __construct = function(self, value)
-        local expected, received = Types.BOOLEAN, Types:type(value)
+        self:__validate(value)
 
-        if Types:not_equals(expected, received) then TypeError.new(expected, received):throw() end
+        local received  = Types:type(value)
+        local bool_dict = {['true'] = true, ['false'] = false}
 
-        self.value = value
+        if Types:equals(Types.BOOLEAN, received) then self.value = value end
+        if Types:equals(Types.STRING, received) then self.value = bool_dict[value] end
+    end,
+
+    -- @param string|boolean value
+    -- @return Unit
+    __validate = function(self, value)
+        local received  = Types:type(value)
+        local expected  = {str = Types.STRING, bool = Types.BOOLEAN}
+
+        if Types:not_equals(expected.str, received) and Types:not_equals(expected.bool, received) then
+            TypeError.new(("%s or %s"):format(expected.str, expected.bool), received):throw()
+        end
+
+        if Types:equals(expected.str, received) and Values:not_equals(value, 'true') and Values:not_equals(value, 'false') then
+            ValueError.new(value, "Expected 'string' or 'boolean', 'true' or 'false' in value"):throw()
+        end
+
+        return Unit
     end,
 
     -- @param Object other
@@ -32,7 +54,7 @@ local Boolean = {
     end,
 
     -- @return boolean
-    get_boolean = function(self)
+    get_value = function(self)
         return self.value
     end,
 
@@ -44,6 +66,11 @@ local Boolean = {
     -- @return boolean
     is_false = function(self)
         return self.value == false
+    end,
+
+    -- @return string
+    as_string = function(self)
+        return self.value and 'true' or 'false'
     end,
 
     -- @override
