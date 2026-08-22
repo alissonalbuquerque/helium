@@ -3,7 +3,8 @@ package = "orion"
 version = "0.0.1-1"
 
 source = {
-  url = "https://github.com/alissonalbuquerque/orion.git"
+  url = "git+https://github.com/alissonalbuquerque/orion.git",
+  branch = "main"
 }
 
 description = {
